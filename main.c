@@ -59,7 +59,7 @@ static void resetForce(body* b) {
   b->forceY = 0;
 } 
 
-static void addForce(body* a, body* b)
+static void addForceX(body* a, body* b)
 { /*Gravitation constant value*/
   prec Gravitation = 0.0000000000667;
 
@@ -75,8 +75,14 @@ static void addForce(body* a, body* b)
       forceX;
       
     }
+}
 
-								 
+static void addForceY(body* a, body* b)	
+
+
+  prec Gravitation = 0.0000000000667
+{
+							 
   prec forceY  = (     ((a->mass)*(b->mass)* Gravitation) /   ( (a->cordY)*(a->cordY) - (b->cordY)*(b->cordY)  ));
 							  
 
@@ -91,6 +97,8 @@ static void addForce(body* a, body* b)
     }
   
 }
+
+
 
 static prec newRand() 
 {
@@ -124,17 +132,16 @@ andra loopen går igenom alla stjärnans krafter
 */
 
 {
-  for( int i = 0; i < N; i++ )
-    {
-      resetForce ( star[i].forceX );
+  for( int i = 0; i < N; i++ ) {
+    
       for( int j = 0; j < N; j++ )
 	{
 	  if( i != j ) 
-	    addForce( star[i].forceX,  star[j].forceX );
+	    star[i].accX += addforceX(i,j);
+	      star[i].accY += addForceY(i,j);
 	}
-    }     
+  }
 }
-
 
 
 // Manually copy coordinates from stars into points (to be drawn).
