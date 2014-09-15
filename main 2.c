@@ -53,45 +53,29 @@ static void update(body* a, prec dt)
 }
 
 
-static void resetForce(body* b) {
+static void addForce(body* a, body* b)
+{
+  prec dx = b->cordX - a->cordX;
+  prec dy = b->cordY - a->cordY;
+
+  prec dist = sqrt(dx*dx + dy*dy);
+  prec inv = 1.0/dist;
+  prec inv2 = inv*inv;
+
+  prec F = b->mass*inv2;
+  a->forceX += F * dx;
+  a->forceY += F * dy;
+}
+
+
+
+static void resetForce(body* b) 
+{
   /*resets force X and Y to zero*/
   b->forceX = 0;
   b->forceY = 0;
 } 
 
-static void addForce(body* a, body* b)
-{ /*Gravitation constant value*/
-  prec Gravitation = 0.0000000000667;
-
-  /*Newtons Gravitational law formula for the total force */
-  prec forceX  = ( ( (a->mass)*(b->mass)* Gravitation) /  ( (a->cordX)*(a->cordX) - (b->cordX)*(b->cordX)  )) ;
-
-  /*If value negative, then turn positive*/
-    if (forceX < 0) {
-
-      forceX =! forceX;
-    }
-    else{
-      forceX;
-      
-    }
-}
-    
-    
-  prec forceY  = (     ((a->mass)*(b->mass)* Gravitation) /   ( (a->cordY)*(a->cordY) - (b->cordY)*(b->cordY)  ));
-							  
-
-  /*If value negative, then turn positive*/
-    if (forceY < 0) {
-
-      forceY =! forceY;
-    }
-    else{
-      forceY;
-      
-    }
-  
-}
 
 static prec newRand() 
 {
@@ -103,18 +87,16 @@ static prec newRand()
 void init(int N, body* star)
 {
 
-  /*  */
-  for (int i = 0; i <= N; i++) {
+
+  for (int i = 0; i <= N; i++) 
+    {
     star[i].mass = newRand();
     star[i].cordX = newRand();
     star[i].cordY = newRand();
-    star[i].veloX = 0;
-    star[i].veloY = 0;
-    star[i].accX = 0;
-    star[i].accY = 0;
-    star[i].forceX = 0;
-    star[i].forceX = 0;
-  }
+    star[i].veloX = newRand();
+    star[i].veloY = newRand();
+
+    }
 }
 
 static void updateForces(int N, body* star)
@@ -125,18 +107,20 @@ andra loopen går igenom alla stjärnans krafter
 */
 
 {
-  for( int i = 0; i < N; i++ )
-    {
-      resetForce ( star[i].forceX );
-      for( int j = 0; j < N; j++ )
-	{
-	  if( i != j ) 
-	    addForce( star[i].forceX,  star[j].forceX );
-	}
-    }     
+  for( int i = 0; i < N; i++ ) {
+    resetForce(&star[i]);
+    for( int j = 0; j < N; j++ ) {
+	  if( i != j ) {
+	   
+	  
+	    addForce(&star[i], &star[j]);
+	    addForce(&star[i], &star[j]);
+
+	  }
+    } update(&star[i], gdt);
+    
+  } 
 }
-
-
 
 // Manually copy coordinates from stars into points (to be drawn).
 // Look at the manual file for XPoint to see which 
@@ -145,8 +129,14 @@ andra loopen går igenom alla stjärnans krafter
 static void copyToXBuffer(body* star, XPoint* points, int N)
 
 {
-}
 
+
+    for( int i=0; i < N; i++)
+      {
+	points[i].x = star[i].cordX + (X_SIZE / 2);
+	points[i].y = star[i].cordY + (Y_SIZE / 2);
+      }
+}
 
 #endif
 
@@ -155,17 +145,28 @@ int main(int argc, char* argv[]) {
   int N = 200;
   int iter = 1000;
 
-  if(argc == 3)
+  if(argc == 
     {
       N = atoi(argv[1]);
       iter = atoi(argv[2]);
+    
     }
+
+    body *star = star[N];
+
+    init(N, star);
+
+    
+
 
 #ifdef ANIMATE
   XPoint* points = malloc(sizeof(XPoint)*N);
   Display* disp;
   Window window, rootwin;
   int screen;
+  
+
+  
 
   disp = XOpenDisplay(NULL);
   screen = DefaultScreen(disp);
@@ -189,6 +190,8 @@ int main(int argc, char* argv[]) {
   clock_t start = clock();
   for(int i = 0; i < iter; i++)
     {
+
+      updateForces(N, &star[i]);
 
 #ifdef ANIMATE
       copyToXBuffer(star, points, N);
